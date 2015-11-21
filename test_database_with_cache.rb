@@ -42,5 +42,34 @@ describe DatabaseWithCache do
         end
       end
     end
+
+
+    describe "#{}updateBook" do
+      context "Give there is a book in the database" do
+        it "The book is updated in the database" do
+        
+        end
+
+      end
+
+      context "if there is a copy in remote cache"do
+          it "should update the book and version in the remote cache" do
+
+
+          end
+          context "and if there is a copy in the local cache" do
+            it "should update the book and version in the local cache" do
+
+            end
+          end 
+
+
+        end 
+
+
+
+
+    end
+
     
 end
