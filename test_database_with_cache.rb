@@ -42,5 +42,30 @@ describe DatabaseWithCache do
         end
       end
     end
+
+
+
+    describe "#authorSearch" do
+      context "Given that the book author is valid" do
+        context "and it is not in the local cache" do
+          context "nor is it in the remote cache" do
+            it "should read them from the d/b and add them to the remote cache" do
+
+            end
+          end
+          context "but they are in the remote cache" do
+            it "should use the remote cache version and add it to the local cache" do
+            end
+          end 
+
+        end 
+        context "it is in the local cache" do
+          context "and up to date with the remote cache" do
+            it "should use the local cache version"
+          end
+        end
+      end
+    end
+    
     
 end
