@@ -6,6 +6,12 @@ describe DatabaseWithCache do
       @book1111 = Book.new('1111','title 1','author 1',12.99, 'Programming', 20 )
       @memcached_mock = double()
       @database_mock = double()
+      @local_cache_mock = double()
+      allow(LocalCache).to receive(:initialize).and_return(@local_cache_mock)
+      allow(@local_cache_mock).to receive(:set)
+      allow(@local_cache_mock).to receive(:get).with('1111').and_return(@book1111)
+      #@local_cache = Local_cache.new
+      #@local_cache.stub(:new).and_return({})
       @target = DatabaseWithCache.new @database_mock, @memcached_mock 
    end
 
@@ -41,16 +47,31 @@ describe DatabaseWithCache do
               end
            end
            context "and not up to date with the remote cache" do
-              it "should use the "
+              it "should use the " 
 
 
            end   
         end
       end
       context "Give the book ISBN is not valid" do
+        context "it is not found in the local cache" do
+          context "nor is it found in the remote cache" do
+            context "nor is it found in the database " do 
+                it "it should return nil" do 
 
+                  expect(@local_cache_mock).to receive(:get).with('1234').and_return nil
+                  expect(@memcached_mock).to receive(:get).with('v_1234').and_return nil
+                  expect(@database_mock).to receive(:isbnSearch).with('1234').and_return nil
+
+                  result = @target.isbnSearch('1234')
+                  expect(result).to be nil
+                end
+              end
+            end
+          end
+        end
       end
 
-    end
+  
     
 end
