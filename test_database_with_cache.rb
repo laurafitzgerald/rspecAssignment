@@ -1,4 +1,5 @@
 require_relative "./database_with_cache"
+require_relative "./local_cache"
 require "rspec/mocks"
 
 describe DatabaseWithCache do
@@ -6,6 +7,16 @@ describe DatabaseWithCache do
       @book1111 = Book.new('1111','title 1','author 1',12.99, 'Programming', 20 )
       @memcached_mock = double()
       @database_mock = double()
+      @local_cache_mock = double()
+
+      allow(LocalCache).to receive(:initialize).and_return(@local_cache_mock)
+      allow(@local_cache_mock).to receive(:set)
+      allow(@local_cache_mock).to receive(:get).with('1111').and_return(@book1111)
+      #@local_cache = Local_cache.new
+      #@local_cache.stub(:new).and_return({})
+
+   
+
       @target = DatabaseWithCache.new @database_mock, @memcached_mock 
    end
 
@@ -44,28 +55,50 @@ describe DatabaseWithCache do
     end
 
 
-    describe "#{}updateBook" do
-      context "Give there is a book in the database" do
-        it "The book is updated in the database" do
-        
-        end
-
+    describe "#updateBook" do
+      before(:each) do
+        @updatedBook = Book.new('1111','title 1','author 1',14.99, 'Programming', 20 ) 
+        @local_cache_mock.set '1111', {book: @book1111 ,version: 1}
       end
+      context "Given there is a book in the database" do
+        it "should update the book in the database" do
+            expect(@database_mock).to receive(:updateBook).with(@book1111).and_return @updatedBook
+            expect(@memcached_mock).to receive(:get).with("v_1111").and_return nil
 
-      context "if there is a copy in remote cache"do
-          it "should update the book and version in the remote cache" do
-
+            #@book1111.price = 14.99
+            result = @target.updateBook(@book1111)
+            expect(result).to eq nil
+        end
+        context "if there is a copy in the remote cache"do
+          it "it should update the book and version in the remote cache" do
+                expect(@database_mock).to receive(:updateBook).with(@book1111).and_return nil
+                expect(@memcached_mock).to receive(:get).with('v_1111').and_return 1
+                expect(@memcached_mock).to receive(:set).with('v_1111', 2 )
+                expect(@memcached_mock).to receive(:set).with('1111_2', @book1111.to_cache)
+                
+                result = @target.updateBook @book1111
 
           end
+     
           context "and if there is a copy in the local cache" do
             it "should update the book and version in the local cache" do
+                expect(@database_mock).to receive(:updateBook).with(@book1111).and_return @updatedBook
+                expect(@memcached_mock).to receive(:get).with('v_1111').and_return 1
+                expect(@memcached_mock).to receive(:set).with('v_1111', 2 )
+                expect(@memcached_mock).to receive(:set).with('1111_2', @book1111.to_cache)
+                expect_any_instance_of(LocalCache).to receive(:get).with(@book1111.isbn).and_return 1
+                expect_any_instance_of(LocalCache).to receive(:set).with(@book1111.isbn, {book: @updatedBook, version: 2})
+                
+                @target.updateBook @book1111
+                result = @local_cache_mock.get '1111'
+                expect(result).to eq @updatedBook
 
             end
           end 
 
 
         end 
-
+      end 
 
 
 
