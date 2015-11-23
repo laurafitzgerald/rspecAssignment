@@ -9,9 +9,9 @@ describe DatabaseWithCache do
       @database_mock = double()
       @local_cache_mock = double()
 
-      allow(LocalCache).to receive(:initialize).and_return(@local_cache_mock)
-      allow(@local_cache_mock).to receive(:set)
-      allow(@local_cache_mock).to receive(:get).with('1111').and_return(@book1111)
+      #allow(LocalCache).to receive(:initialize).and_return(@local_cache_mock)
+      #allow(@local_cache_mock).to receive(:set)
+      #allow(@local_cache_mock).to receive(:get).with('1111').and_return(@book1111)
       #@local_cache = Local_cache.new
       #@local_cache.stub(:new).and_return({})
 
@@ -58,11 +58,11 @@ describe DatabaseWithCache do
     describe "#updateBook" do
       before(:each) do
         @updatedBook = Book.new('1111','title 1','author 1',14.99, 'Programming', 20 ) 
-        @local_cache_mock.set '1111', {book: @book1111 ,version: 1}
+        expect(@database_mock).to receive(:updateBook).with(@book1111)#.and_return @updatedBook
       end
       context "Given there is a book in the database" do
         it "should update the book in the database" do
-            expect(@database_mock).to receive(:updateBook).with(@book1111).and_return @updatedBook
+            
             expect(@memcached_mock).to receive(:get).with("v_1111").and_return nil
 
             #@book1111.price = 14.99
@@ -71,7 +71,7 @@ describe DatabaseWithCache do
         end
         context "if there is a copy in the remote cache"do
           it "it should update the book and version in the remote cache" do
-                expect(@database_mock).to receive(:updateBook).with(@book1111).and_return nil
+                
                 expect(@memcached_mock).to receive(:get).with('v_1111').and_return 1
                 expect(@memcached_mock).to receive(:set).with('v_1111', 2 )
                 expect(@memcached_mock).to receive(:set).with('1111_2', @book1111.to_cache)
@@ -82,7 +82,7 @@ describe DatabaseWithCache do
      
           context "and if there is a copy in the local cache" do
             it "should update the book and version in the local cache" do
-                expect(@database_mock).to receive(:updateBook).with(@book1111).and_return @updatedBook
+             
                 expect(@memcached_mock).to receive(:get).with('v_1111').and_return 1
                 expect(@memcached_mock).to receive(:set).with('v_1111', 2 )
                 expect(@memcached_mock).to receive(:set).with('1111_2', @book1111.to_cache)
