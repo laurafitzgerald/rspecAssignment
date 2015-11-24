@@ -39,7 +39,6 @@ require 'json'
       else
           memcache_version = @Remote_cache.get "v_#{isbn}"
           if memcache_version.to_i == local_copy[:version]
-
              result = local_copy[:book]
           else 
              memcache_copy = @Remote_cache.get "#{isbn}_#{memcache_version}" 
