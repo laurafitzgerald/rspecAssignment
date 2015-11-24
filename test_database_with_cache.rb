@@ -33,7 +33,6 @@ describe DatabaseWithCache do
           context "but it is in the remote cache" do
               it "should use the remote cache version and add it to local cache" do
                  expect(@local_cache_mock).to receive(:get).with('1111').and_return nil
-                 #expect_any_instance_of(LocalCache).to receive(:get).with('1111').and_return nil
                  expect(@database_mock).to_not receive(:isbnSearch)
                  expect(@memcached_mock).to receive(:get).with('v_1111').and_return 1
                  expect(@memcached_mock).to receive(:get).with('1111_1').
@@ -42,7 +41,8 @@ describe DatabaseWithCache do
 
                  result = @target.isbnSearch('1111')
                  expect(result).to eq @book1111
-                 # Check it's in local cache 
+                 expect(@local_cache_mock.get '1111').to_not eq nil
+
               end
           end 
         end        
@@ -50,8 +50,7 @@ describe DatabaseWithCache do
            context "and up to date with the remote cache" do
               it "should use the local cache version" do
                 expect(@database_mock).to_not receive(:isbnSearch)
-                expect(@local_cache_mock).to receive(:get).with('1111').and_return Hash["book", @book1111.to_cache, "version", 1]
-                #expect_any_instance_of(LocalCache).to receive(:get).with('1111').and_return Hash["book", @book1111.to_cache, "version", 1]
+                expect(@local_cache_mock).to receive(:get).with('1111').and_return({book: @book1111, version: 1})
                 expect(@memcached_mock).to receive(:get).with('v_1111').and_return 1
                 #if memcahce_version.to_i == local_copy[:version] should return true if up to date with the remote cache
 
@@ -159,13 +158,13 @@ describe DatabaseWithCache do
       context "Given that the book author is valid" do
         context "and it is not in the local cache" do
           context "nor is it in the remote cache" do
-            it "should read them from the d/b and add them to the remote cache" do
+            it "should read them from the d/b and add them to the remote cache" #do
 
-            end
+            #end
           end
           context "but they are in the remote cache" do
-            it "should use the remote cache version and add it to the local cache" do
-            end
+            it "should use the remote cache version and add it to the local cache" #do
+            #end
           end 
 
         end 
