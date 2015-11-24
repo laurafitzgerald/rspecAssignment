@@ -87,9 +87,9 @@ describe DatabaseWithCache do
       context "Given that a valid book is sent to be updated" do
         context "Given there is a book in the database" do
           it "should update the book in the database" do
-            expect(@memcached_mock).to receive(:get).with("v_1111").and_return nil
-            result = @target.updateBook(@book1111)
-            expect(result).to eq nil
+            expect(@memcached_mock).to receive(:get).and_return nil
+            expect(@local_cache_mock).to receive(:get).with('1111').and_return nil
+            @target.updateBook(@book1111)
           end
         end
         before(:each) do 
@@ -99,7 +99,9 @@ describe DatabaseWithCache do
         end
         context "if there is a copy in the remote cache"do
           it "it should update the book and version in the remote cache" do
+            expect(@local_cache_mock).to receive(:get).and_return nil
             @target.updateBook @book1111
+
           end
         end
         context "and if there is a copy in the local cache" do
@@ -111,7 +113,7 @@ describe DatabaseWithCache do
         end 
       end
       context "Given that a valid book is not sent to be updated" do
-        context "it is not found in the database"
+        context "it is not found in the database" do
           context "nor is it found in the remote cache" do
             context "nor is it found in the local cache" do
               it "should not carry out any updates" do
