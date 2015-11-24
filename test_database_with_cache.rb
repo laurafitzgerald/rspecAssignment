@@ -86,6 +86,7 @@ describe DatabaseWithCache do
                 expect(@memcached_mock).to receive(:get).with('v_1111').and_return 1
                 expect(@memcached_mock).to receive(:set).with('v_1111', 2 )
                 expect(@memcached_mock).to receive(:set).with('1111_2', @book1111.to_cache)
+                #expect_any_instance_of(LocalCache).to_not receive(:get).with(@book1111.isbn)#.and_return 1
                 expect_any_instance_of(LocalCache).to receive(:get).with(@book1111.isbn).and_return 1
                 expect_any_instance_of(LocalCache).to receive(:set).with(@book1111.isbn, {book: @updatedBook, version: 2})
                 
