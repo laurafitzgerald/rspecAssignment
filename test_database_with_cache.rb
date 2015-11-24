@@ -7,7 +7,6 @@ describe DatabaseWithCache do
       @book1111 = Book.new('1111','title 1','author 1',12.99, 'Programming', 20 )
       @memcached_mock = double()
       @database_mock = double()
-      @local_cache_mock = double()
       @target = DatabaseWithCache.new @database_mock, @memcached_mock 
    end
 
@@ -81,7 +80,6 @@ describe DatabaseWithCache do
         end
       end
 
-    end
 
     describe "#updateBook" do
       before(:each) do
